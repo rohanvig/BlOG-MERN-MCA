@@ -115,45 +115,46 @@ The BlogBreeze Team
 };
 
 // Signin function to authenticate a user
+// Signin function to authenticate a user
 export const signin = async (req, res, next) => {
   const { email, password } = req.body;
 
-  // Check if email and password are provided
-  if (!email || !password || email === "" || password === "") {
-    next(errorHandler(400, "All fields are required"));
+  if (!email || !password) {
+    return next(errorHandler(400, "All fields are required"));
   }
 
   try {
-    // Find user by email
     const validUser = await User.findOne({ email });
     if (!validUser) {
       return next(errorHandler(404, "User not found"));
     }
 
-    // Check if the password matches
     const validPassword = bcryptjs.compareSync(password, validUser.password);
     if (!validPassword) {
       return next(errorHandler(400, "Invalid password"));
     }
 
-    // Generate a JWT token
     const token = jwt.sign(
       { id: validUser._id, isAdmin: validUser.isAdmin },
       process.env.SECRET_KEY
     );
 
-    // Exclude the password from the response
-    const { password: pass, ...rest } = validUser._doc;
+    const { password, ...rest } = validUser._doc;
 
-    // Send the token in a cookie and return the user details
     res
       .status(200)
-      .cookie("access_token", token, { httpOnly: true })
+      .cookie("access_token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // Set to true in production
+        sameSite: 'None',  // Allow cross-origin cookies
+        maxAge: 24 * 60 * 60 * 1000 // 1 day expiry
+      })
       .json(rest);
   } catch (error) {
-    next(error); // Handle any errors that occur during signin
+    next(error);
   }
 };
+
 
 // Google Signin function to authenticate or create a user using Google OAuth
 export const google = async (req, res, next) => {
@@ -168,12 +169,18 @@ export const google = async (req, res, next) => {
         process.env.SECRET_KEY
       );
       const { password, ...rest } = user._doc;
+
+      // Send the token as a cookie with SameSite and Secure options
       res
         .status(200)
-        .cookie("access_token", token, { httpOnly: true })
+        .cookie("access_token", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production', // Ensure secure in production
+          sameSite: 'None', // Required for cross-origin cookie sharing
+          maxAge: 24 * 60 * 60 * 1000, // Cookie expires in 1 day
+        })
         .json(rest);
 
-      // Optionally log or handle the existing user case
       console.log("Existing user signed in");
     } else {
       // User doesn't exist, create a new user with a generated password
@@ -182,9 +189,7 @@ export const google = async (req, res, next) => {
         Math.random().toString(36).slice(-8);
       const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
       const newUser = new User({
-        username:
-          name.toLowerCase().split(" ").join("") +
-          Math.random().toString(9).slice(-4),
+        username: name.toLowerCase().split(" ").join("") + Math.random().toString(9).slice(-4),
         email,
         password: hashedPassword,
         profilePicture: googlePhotoUrl,
@@ -197,9 +202,16 @@ export const google = async (req, res, next) => {
         process.env.SECRET_KEY
       );
       const { password, ...rest } = newUser._doc;
+
+      // Send the token as a cookie with SameSite and Secure options
       res
         .status(200)
-        .cookie("access_token", token, { httpOnly: true })
+        .cookie("access_token", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'None',
+          maxAge: 24 * 60 * 60 * 1000,
+        })
         .json(rest);
 
       // Send welcome email to new users
