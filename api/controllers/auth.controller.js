@@ -148,7 +148,7 @@ export const signin = async (req, res, next) => {
     // Send the token in a cookie and return the user details
     res
       .status(200)
-      .cookie("access_token", token, { httpOnly: true })
+      .cookie("access_token", token, { httpsOnly: true })
       .json(rest);
   } catch (error) {
     next(error); // Handle any errors that occur during signin
