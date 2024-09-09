@@ -5,7 +5,6 @@ import jwt from "jsonwebtoken";
 import { generateOTP, sendOTP } from "../utils/twilio.js"; // Import from your utils directory
 import { sendEmail } from "../utils/mailer.js";
 
-
 export const signup = async (req, res, next) => {
   const { username, email, password, phoneNumber, recaptchaToken } = req.body;
 
@@ -199,7 +198,7 @@ export const google = async (req, res, next) => {
       const { password, ...rest } = newUser._doc;
       res
         .status(200)
-        .cookie("access_token", token, { httpOnly: true })
+        .cookie("access_token", token)
         .json(rest);
 
       // Send welcome email to new users
