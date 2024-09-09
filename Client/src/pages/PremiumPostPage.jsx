@@ -17,7 +17,7 @@ export default function PremiumPostPage() {
           .find((row) => row.startsWith("access_token="))
           ?.split("=")[1]; // Extract the access_token from the cookie
 
-        const res = await axios.get("/api/post/premium-blogs", {
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/post/premium-blogs`, {
           headers: {
             Authorization: `Bearer ${accessToken}`, // Include the access_token in the request
           },
