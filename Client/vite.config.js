@@ -8,10 +8,10 @@ export default defineConfig(({ mode }) => {
   return {
     server: {
       proxy: {
-        '/api': {
-          target: env.VITE_BACKEND_URL, // Using the loaded environment variable
-          secure: false,
-        },
+        // '/api': {
+        //   target: env.VITE_BACKEND_URL, // Using the loaded environment variable
+        //   secure: false,
+        // },
       },
     },
     plugins: [react()],
