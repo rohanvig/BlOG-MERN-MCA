@@ -147,7 +147,7 @@ export const signin = async (req, res, next) => {
     // Send the token in a cookie and return the user details
     res
       .status(200)
-      .cookie("access_token", token, { httpOnly: true })
+      .cookie("access_token", token, { httpsOnly: true })
       .json(rest);
   } catch (error) {
     next(error); // Handle any errors that occur during signin
@@ -198,7 +198,11 @@ export const google = async (req, res, next) => {
       const { password, ...rest } = newUser._doc;
       res
         .status(200)
+<<<<<<< HEAD
         .cookie("access_token", token)
+=======
+        .cookie("access_token", token, { httpsOnly: true })
+>>>>>>> 354a252ea38f2b7d759435a18c200814b0b7d2e3
         .json(rest);
 
       // Send welcome email to new users
