@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import { generateOTP, sendOTP } from "../utils/twilio.js"; // Import from your utils directory
 import { sendEmail } from "../utils/mailer.js";
 
+
 export const signup = async (req, res, next) => {
   const { username, email, password, phoneNumber, recaptchaToken } = req.body;
 
@@ -147,7 +148,7 @@ export const signin = async (req, res, next) => {
     // Send the token in a cookie and return the user details
     res
       .status(200)
-      .cookie("access_token", token)
+      .cookie("access_token", token, { httpOnly: true })
       .json(rest);
   } catch (error) {
     next(error); // Handle any errors that occur during signin
@@ -169,7 +170,7 @@ export const google = async (req, res, next) => {
       const { password, ...rest } = user._doc;
       res
         .status(200)
-        .cookie("access_token", token)
+        .cookie("access_token", token, { httpOnly: true })
         .json(rest);
 
       // Optionally log or handle the existing user case
@@ -198,7 +199,7 @@ export const google = async (req, res, next) => {
       const { password, ...rest } = newUser._doc;
       res
         .status(200)
-        .cookie("access_token", token)
+        .cookie("access_token", token, { httpOnly: true })
         .json(rest);
 
       // Send welcome email to new users
